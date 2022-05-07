@@ -10,7 +10,13 @@ def main():
 
 	count = 0
 	# Game loop runs for ever
+	rotate = -1
+	scale = 1
+	x = 0
+	y = 0
+	z = 0
 	while running:
+
 
 		for event in pg.event.get(): # Grab all of the input events detected by PyGame
 			if event.type == pg.QUIT:  # This event triggers when the window is closed
@@ -31,7 +37,25 @@ def main():
 						colorLoc = glGetUniformLocation(window.shader, "objectColor")
 						glUniform3f(colorLoc, 0, 0, 1)
 						count = count + 1
-		window.render() # Refresh screen
+				elif event.key == pg.K_z:
+					rotate = 2
+				elif event.key == pg.K_x:
+					rotate = 1
+				elif event.key == pg.K_y:
+					rotate = 0
+				elif event.key == pg.K_PLUS:
+					scale = scale + 0.1
+				elif event.key == pg.K_MINUS:
+					scale = scale - 0.1
+				elif event.key == pg.K_UP:
+					y = y + 0.1
+				elif event.key == pg.K_DOWN:
+					y = y - 0.1
+				elif event.key == pg.K_LEFT:
+					x = x - 0.1
+				elif event.key == pg.K_RIGHT:
+					x = x +
+		window.render(rotate, scale, x, y, z) # Refresh screen
 	
 	window.cleanup()
 	pg.quit

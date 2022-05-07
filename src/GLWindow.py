@@ -117,10 +117,10 @@ class OpenGLWindow:
         # Uncomment this for model rendering
         #self.cube = Geometry('./resources/cube.obj')
         self.wood_texture = Material("wood.jpeg")
-        self.cube_load = Geometry("suzanne.obj")
+        self.cube_load = Geometry("resources/cube.obj")
 
         self.cube = Cube(
-            position=[0, 0, -3],  # Positive z value behind camera, negative in front of camera
+            position=[0, 0, -2],  # Positive z value behind camera, negative in front of camera
             eulers=[0, 0, 0]
         )
 
@@ -141,7 +141,7 @@ class OpenGLWindow:
         print("Setup complete!")
 
 
-    def render(self):
+    def render(self, rotate, scale, x, y, z):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)   # Colour buffer stores all pixels on screen. Colours stored in colour buffer bit thing
         glUseProgram(self.shader)  # You may not need this line
 
@@ -156,10 +156,10 @@ class OpenGLWindow:
         # Uncomment this for model rendering
         #glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
 
-
-        self.cube.eulers[0] += 0.25
-        if self.cube.eulers[0] > 360:
-            self.cube.eulers[0] -= 360
+        if (rotate >= 0 & rotate <=2):
+            self.cube.eulers[rotate] += 0.25
+            if self.cube.eulers[rotate] > 360:
+                self.cube.eulers[rotate] -= 360
 
         # refresh screen
 
@@ -178,6 +178,24 @@ class OpenGLWindow:
                 eulers=np.radians(self.cube.eulers), dtype=np.float32
             )
         )
+        # Send to position
+        model_transform = pyrr.matrix44.multiply(
+            m1=model_transform,
+            m2=pyrr.matrix44.create_from_translation(
+                vec=np.array(self.cube.position), dtype=np.float32
+            )
+        )
+        # Scale
+        model_transform = pyrr.matrix44.multiply(
+            m1=model_transform,
+            m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
+        )
+        # translate
+        model_transform = pyrr.matrix44.multiply(
+            m1=model_transform,
+            m2=pyrr.matrix44.create_from_translation(np.array([x, y, z]), dtype=np.float32)
+        )
+
         # Send to position
         model_transform = pyrr.matrix44.multiply(
             m1=model_transform,
