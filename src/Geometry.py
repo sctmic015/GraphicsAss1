@@ -3,6 +3,7 @@ import warnings
 
 from OpenGL.GL import *
 
+# Is a Mesh
 class Geometry:
     def __init__(self, filename):
         # Vertices stores all of the model data per face in the following format:
@@ -15,6 +16,8 @@ class Geometry:
         self.vertexCount = len(self.vertices) // 8
         self.vertices = np.array(self.vertices, dtype=np.float32)
 
+        self.vao = glGenVertexArrays(1)
+        glBindVertexArray(self.vao)
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
         glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW)

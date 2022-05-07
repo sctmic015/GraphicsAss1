@@ -2,6 +2,7 @@ import pygame as pg
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileProgram, compileShader
 import numpy as np
+import pyrr
 
 from Geometry import Geometry
 
@@ -45,6 +46,14 @@ class Triangle:
         # Freeing vbo. , represents a list
         glDeleteBuffers(1, (self.vbo,))
 
+# Hold position and angle for drawing a cube
+class Cube:
+
+
+    def __init__(self, position, eulers):
+
+        self.position = np.array(position, dtype=np.float32)
+        self.eulers = np.array(eulers, dtype=np.float32)
 
 class OpenGLWindow:
 
@@ -79,7 +88,7 @@ class OpenGLWindow:
         # Creates new window. Tell pygamae using opengL and use double buffering system. 
         pg.display.set_mode((screen_width, screen_height), pg.OPENGL | pg.DOUBLEBUF)
 
-        glEnable(GL_DEPTH_TEST)
+        glEnable(GL_DEPTH_TEST) # Checks if objects are drawing in front of each other properly
         # Uncomment these two lines when perspective camera has been implemented
         #glEnable(GL_CULL_FACE)
         #glCullFace(GL_BACK)
@@ -103,10 +112,31 @@ class OpenGLWindow:
         glUniform3f(colorLoc, 1.0, 1.0, 1.0)
 
         # Uncomment this for triangle rendering
-        self.triangle = Triangle(self.shader)
+        #self.triangle = Triangle(self.shader)
 
         # Uncomment this for model rendering
         #self.cube = Geometry('./resources/cube.obj')
+        self.wood_texture = Material("wood.jpeg")
+        self.cube_load = Geometry("suzanne.obj")
+
+        self.cube = Cube(
+            position=[0, 0, -3],  # Positive z value behind camera, negative in front of camera
+            eulers=[0, 0, 0]
+        )
+
+        ## Perspective Projection matrix - Gives us our view
+        projection_transform = pyrr.matrix44.create_perspective_projection(
+            fovy=45, aspect=640 / 480,    # fovy - field of view angle in the y think like half a view angle; aspect -> aspect ratio
+            near=0.1, far=10, dtype=np.float32 # near closer than 0.1 not drawn and further than 10 not drawn
+        )
+        ## Sending in a 4 x 4 matrix with float values
+        glUniformMatrix4fv(
+            glGetUniformLocation(self.shader, "projection"), # Get location of projection uniform matrix
+            1, GL_FALSE, projection_transform     # Number of matrices putting in and whether to transpose them. Lasr arguement matrix we send in
+        )
+
+        # Don't have to query projection matrix because used every frame or something like that
+        self.modelMatrixLocation = glGetUniformLocation(self.shader, "model")
 
         print("Setup complete!")
 
@@ -121,23 +151,79 @@ class OpenGLWindow:
         # Using triangles 
         # Vertex 0 where we start from
         # Vertext count is number of points to draw
-        glDrawArrays(GL_TRIANGLES, 0, self.triangle.vertexCount)
+        #glDrawArrays(GL_TRIANGLES, 0, self.triangle.vertexCount)
 
         # Uncomment this for model rendering
         #glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
 
 
+        self.cube.eulers[0] += 0.25
+        if self.cube.eulers[0] > 360:
+            self.cube.eulers[0] -= 360
+
+        # refresh screen
+
+        # Start with identity and multiply on progressively
+        model_transform = pyrr.matrix44.create_identity(dtype=np.float32)
+        """    Eulers represent through rotations 
+            pitch: rotation around x axis
+            roll:rotation around z axis
+            yaw: rotation around y axis
+        """
+
+        # Rotate cube around axis I think
+        model_transform = pyrr.matrix44.multiply(
+            m1=model_transform,
+            m2=pyrr.matrix44.create_from_eulers(
+                eulers=np.radians(self.cube.eulers), dtype=np.float32
+            )
+        )
+        # Send to position
+        model_transform = pyrr.matrix44.multiply(
+            m1=model_transform,
+            m2=pyrr.matrix44.create_from_translation(
+                vec=np.array(self.cube.position), dtype=np.float32
+            )
+        )
+        glUniformMatrix4fv(self.modelMatrixLocation, 1, GL_FALSE, model_transform)
+        self.wood_texture.use()
+
+        glBindVertexArray(self.cube_load.vao)
+        glDrawArrays(GL_TRIANGLES, 0, self.cube_load.vertexCount)
         # Swap the front and back buffers on the window, effectively putting what we just "drew"
         # Onto the screen (whereas previously it only existed in memory)
         pg.display.flip()
 
         #
-        # self.clock.tick(60)  # might need this
+        self.clock.tick(60)  # might need this
 
     def cleanup(self):
         # Deleting vao , represents list
         glDeleteVertexArrays(1, (self.vao,))
         # Uncomment for triangle rendering
-        self.triangle.cleanup()
+        #self.triangle.cleanup()
         # Uncomment for model rendering
-        #self.cube.cleanup()
+        self.cube.cleanup()
+
+
+class Material:
+
+    def __init__(self, filepath):
+        self.texture = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, self.texture)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+        image = pg.image.load(filepath).convert()
+        image_width, image_height = image.get_rect().size
+        img_data = pg.image.tostring(image, 'RGBA')
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, img_data)
+        glGenerateMipmap(GL_TEXTURE_2D)
+
+    def use(self):
+        glActiveTexture(GL_TEXTURE0)
+        glBindTexture(GL_TEXTURE_2D, self.texture)
+
+    def destroy(self):
+        glDeleteTextures(1, (self.texture,))
