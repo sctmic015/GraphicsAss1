@@ -43,10 +43,12 @@ def main():
 					rotate = 1
 				elif event.key == pg.K_y:
 					rotate = 0
-				elif event.key == pg.K_PLUS:
+				elif event.key == pg.K_PLUS:     # For some reason unkown to me the + is not registering
 					scale = scale + 0.1
+					print(scale)
 				elif event.key == pg.K_MINUS:
 					scale = scale - 0.1
+					print(scale)
 				elif event.key == pg.K_UP:
 					y = y + 0.1
 				elif event.key == pg.K_DOWN:
@@ -54,7 +56,7 @@ def main():
 				elif event.key == pg.K_LEFT:
 					x = x - 0.1
 				elif event.key == pg.K_RIGHT:
-					x = x +
+					x = x + 0.1
 		window.render(rotate, scale, x, y, z) # Refresh screen
 	
 	window.cleanup()

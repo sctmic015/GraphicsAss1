@@ -55,11 +55,27 @@ class Cube:
         self.position = np.array(position, dtype=np.float32)
         self.eulers = np.array(eulers, dtype=np.float32)
 
+class Scene:
+    def __init__(self):
+
+        self.cubes = [
+            Cube(
+                position=[-1, 0, -2],
+                eulers=[0, 0, 0]
+            ),
+            Cube(
+                position=[1, 0, -2],
+                eulers=[0, 0, 0]
+            )
+        ]
+
+
 class OpenGLWindow:
 
     def __init__(self):
         self.triangle = None
         self.clock = pg.time.Clock()
+        self.scene = Scene()
 
     # Shaders are like there own program in GPU
     def loadShaderProgram(self, vertex, fragment):
@@ -83,15 +99,15 @@ class OpenGLWindow:
         pg.display.gl_set_attribute(pg.GL_CONTEXT_PROFILE_MASK, pg.GL_CONTEXT_PROFILE_CORE)
 
         pg.display.gl_set_attribute(pg.GL_CONTEXT_MAJOR_VERSION, 3)
-        pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 2)
+        pg.display.gl_set_attribute(pg.GL_CONTEXT_MINOR_VERSION, 3)      # Wonder what this does
 
         # Creates new window. Tell pygamae using opengL and use double buffering system. 
         pg.display.set_mode((screen_width, screen_height), pg.OPENGL | pg.DOUBLEBUF)
 
         glEnable(GL_DEPTH_TEST) # Checks if objects are drawing in front of each other properly
         # Uncomment these two lines when perspective camera has been implemented
-        #glEnable(GL_CULL_FACE)
-        #glCullFace(GL_BACK)
+        glEnable(GL_CULL_FACE)
+        glCullFace(GL_BACK)
 
         # Shows which colour we want to show on our screen
         glClearColor(0, 0, 0, 1)
@@ -119,10 +135,10 @@ class OpenGLWindow:
         self.wood_texture = Material("wood.jpeg")
         self.cube_load = Geometry("resources/cube.obj")
 
-        self.cube = Cube(
-            position=[0, 0, -2],  # Positive z value behind camera, negative in front of camera
-            eulers=[0, 0, 0]
-        )
+        #self.cube = Cube(
+        #    position=[0, 0, -2],  # Positive z value behind camera, negative in front of camera
+        #    eulers=[0, 0, 0]
+        #)
 
         ## Perspective Projection matrix - Gives us our view
         projection_transform = pyrr.matrix44.create_perspective_projection(
@@ -155,61 +171,62 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         #glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
+        for cube in self.scene.cubes:
+            print(cube)
+            if (rotate >= 0 & rotate <=2):
+                cube.eulers[rotate] += 0.25
+                if cube.eulers[rotate] > 360:
+                    cube.eulers[rotate] -= 360
 
-        if (rotate >= 0 & rotate <=2):
-            self.cube.eulers[rotate] += 0.25
-            if self.cube.eulers[rotate] > 360:
-                self.cube.eulers[rotate] -= 360
+            # refresh screen
 
-        # refresh screen
+            # Start with identity and multiply on progressively
+            model_transform = pyrr.matrix44.create_identity(dtype=np.float32)
+            """    Eulers represent through rotations 
+                pitch: rotation around x axis
+                roll:rotation around z axis
+                yaw: rotation around y axis
+            """
 
-        # Start with identity and multiply on progressively
-        model_transform = pyrr.matrix44.create_identity(dtype=np.float32)
-        """    Eulers represent through rotations 
-            pitch: rotation around x axis
-            roll:rotation around z axis
-            yaw: rotation around y axis
-        """
-
-        # Rotate cube around axis I think
-        model_transform = pyrr.matrix44.multiply(
-            m1=model_transform,
-            m2=pyrr.matrix44.create_from_eulers(
-                eulers=np.radians(self.cube.eulers), dtype=np.float32
+            # Rotate cube around axis I think
+            model_transform = pyrr.matrix44.multiply(
+                m1=model_transform,
+                m2=pyrr.matrix44.create_from_eulers(
+                    eulers=np.radians(cube.eulers), dtype=np.float32
+                )
             )
-        )
-        # Send to position
-        model_transform = pyrr.matrix44.multiply(
-            m1=model_transform,
-            m2=pyrr.matrix44.create_from_translation(
-                vec=np.array(self.cube.position), dtype=np.float32
+            # Send to position
+            model_transform = pyrr.matrix44.multiply(
+                m1=model_transform,
+                m2=pyrr.matrix44.create_from_translation(
+                    vec=np.array(cube.position), dtype=np.float32
+                )
             )
-        )
-        # Scale
-        model_transform = pyrr.matrix44.multiply(
-            m1=model_transform,
-            m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
-        )
-        # translate
-        model_transform = pyrr.matrix44.multiply(
-            m1=model_transform,
-            m2=pyrr.matrix44.create_from_translation(np.array([x, y, z]), dtype=np.float32)
-        )
-
-        # Send to position
-        model_transform = pyrr.matrix44.multiply(
-            m1=model_transform,
-            m2=pyrr.matrix44.create_from_translation(
-                vec=np.array(self.cube.position), dtype=np.float32
+            # Scale
+            model_transform = pyrr.matrix44.multiply(
+                m1=model_transform,
+                m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
             )
-        )
-        glUniformMatrix4fv(self.modelMatrixLocation, 1, GL_FALSE, model_transform)
-        self.wood_texture.use()
+            # translate
+            model_transform = pyrr.matrix44.multiply(
+                m1=model_transform,
+                m2=pyrr.matrix44.create_from_translation(np.array([x, y, z]), dtype=np.float32)
+            )
 
-        glBindVertexArray(self.cube_load.vao)
-        glDrawArrays(GL_TRIANGLES, 0, self.cube_load.vertexCount)
-        # Swap the front and back buffers on the window, effectively putting what we just "drew"
-        # Onto the screen (whereas previously it only existed in memory)
+            # Send to position
+            model_transform = pyrr.matrix44.multiply(
+                m1=model_transform,
+                m2=pyrr.matrix44.create_from_translation(
+                    vec=np.array(cube.position), dtype=np.float32
+                )
+            )
+            glUniformMatrix4fv(self.modelMatrixLocation, 1, GL_FALSE, model_transform)
+            self.wood_texture.use()
+
+            glBindVertexArray(self.cube_load.vao)
+            glDrawArrays(GL_TRIANGLES, 0, self.cube_load.vertexCount)
+            # Swap the front and back buffers on the window, effectively putting what we just "drew"
+            # Onto the screen (whereas previously it only existed in memory)
         pg.display.flip()
 
         #
