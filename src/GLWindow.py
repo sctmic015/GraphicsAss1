@@ -60,11 +60,11 @@ class Scene:
 
         self.cubes = [
             Cube(
-                position=[-0.6, 0, -2],
+                position=[0, 0, -10],
                 eulers=[0, 0, 0]
             ),
             Cube(
-                position=[0.6, 0, -2],
+                position=[-1.5, 0, -10],
                 eulers=[0, 0, 0]
             )
         ]
@@ -92,7 +92,7 @@ class OpenGLWindow:
 
         return shader
 
-    def initGL(self, screen_width=640, screen_height=480):
+    def initGL(self, screen_width=1080, screen_height=720):
         # Initialise
         pg.init()
 
@@ -113,8 +113,8 @@ class OpenGLWindow:
         glClearColor(0, 0, 0, 1)
 
         # Best way to declare vertex data. Ties in with VBO and associates with VBO
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        #self.vao = glGenVertexArrays(1)
+        #glBindVertexArray(self.vao)
 
         # Note that this path is relative to your working directory when running the program
         # You will need change the filepath if you are running the script from inside ./src/
@@ -143,7 +143,7 @@ class OpenGLWindow:
         ## Perspective Projection matrix - Gives us our view
         projection_transform = pyrr.matrix44.create_perspective_projection(
             fovy=45, aspect=640 / 480,    # fovy - field of view angle in the y think like half a view angle; aspect -> aspect ratio
-            near=0.1, far=10, dtype=np.float32 # near closer than 0.1 not drawn and further than 10 not drawn
+            near=0.1, far=50, dtype=np.float32 # near closer than 0.1 not drawn and further than 10 not drawn
         )
         ## Sending in a 4 x 4 matrix with float values
         glUniformMatrix4fv(
@@ -164,7 +164,7 @@ class OpenGLWindow:
         #Uncomment this for triangle rendering
         # Draws the triangle
         # Was bound in youtube vid but not here
-        # Using triangles 
+        # Using triangles
         # Vertex 0 where we start from
         # Vertext count is number of points to draw
         #glDrawArrays(GL_TRIANGLES, 0, self.triangle.vertexCount)
@@ -172,30 +172,57 @@ class OpenGLWindow:
         # Uncomment this for model rendering
         #glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
 
+
+        count = 0
         for cube in self.scene.cubes:
-            print(cube)
-            if (rotate >= 0 & rotate <=2):
-                cube.eulers[rotate] += 0.25
-                if cube.eulers[rotate] > 360:
-                    cube.eulers[rotate] -= 360
+            model_transform = pyrr.matrix44.create_identity(dtype=np.float32)    # Gonna leave this here for now
+            if count == 0:
+                if (rotate >= 0 & rotate <=2):
+                    cube.eulers[rotate] += 0.25
+                    if cube.eulers[rotate] > 360:
+                        cube.eulers[rotate] -= 360
 
-            # refresh screen
+                # refresh screen
 
-            # Start with identity and multiply on progressively
-            model_transform = pyrr.matrix44.create_identity(dtype=np.float32)
-            """    Eulers represent through rotations 
-                pitch: rotation around x axis
-                roll:rotation around z axis
-                yaw: rotation around y axis
-            """
+                # Start with identity and multiply on progressively
 
-            # Rotate cube around axis I think
-            model_transform = pyrr.matrix44.multiply(
-                m1=model_transform,
-                m2=pyrr.matrix44.create_from_eulers(
-                    eulers=np.radians(cube.eulers), dtype=np.float32
+                """    Eulers represent through rotations 
+                    pitch: rotation around x axis
+                    roll:rotation around z axis
+                    yaw: rotation around y axis
+                """
+
+                # Rotate cube around axis I think
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_eulers(
+                        eulers=np.radians(cube.eulers), dtype=np.float32
+                    )
                 )
-            )
+            elif count > 0:
+                # translate
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_translation(np.array([3, 0, 0]), dtype=np.float32)
+                )
+
+                if (rotate >= 0 & rotate <=2):
+                    cube.eulers[rotate] += 0.25
+                    if cube.eulers[rotate] > 360:
+                        cube.eulers[rotate] -= 360
+
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_eulers(
+                        eulers=np.radians(cube.eulers), dtype=np.float32
+                    )
+                )
+
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_translation(np.array([3, 0, 0]), dtype=np.float32)
+                )
+
             # Send to position
             model_transform = pyrr.matrix44.multiply(
                 m1=model_transform,
@@ -228,10 +255,11 @@ class OpenGLWindow:
             glDrawArrays(GL_TRIANGLES, 0, self.cube_load.vertexCount)
             # Swap the front and back buffers on the window, effectively putting what we just "drew"
             # Onto the screen (whereas previously it only existed in memory)
+            count = count + 1
         pg.display.flip()
 
         #
-        self.clock.tick(60)  # might need this
+        self.clock.tick(100)  # might need this
 
     def cleanup(self):
         # Deleting vao , represents list

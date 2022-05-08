@@ -5,6 +5,7 @@ from OpenGL.GL import *
 
 # Is a Mesh
 class Geometry:
+
     def __init__(self, filename):
         # Vertices stores all of the model data per face in the following format:
         # vertex_x, vertex_y, vertex_z, texture_s, texture_t, normal_x, normal_y, normal_z
