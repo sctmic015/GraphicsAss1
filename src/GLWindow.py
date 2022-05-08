@@ -60,11 +60,11 @@ class Scene:
 
         self.cubes = [
             Cube(
-                position=[-1, 0, -2],
+                position=[-0.6, 0, -2],
                 eulers=[0, 0, 0]
             ),
             Cube(
-                position=[1, 0, -2],
+                position=[0.6, 0, -2],
                 eulers=[0, 0, 0]
             )
         ]
@@ -133,7 +133,7 @@ class OpenGLWindow:
         # Uncomment this for model rendering
         #self.cube = Geometry('./resources/cube.obj')
         self.wood_texture = Material("wood.jpeg")
-        self.cube_load = Geometry("resources/cube.obj")
+        self.cube_load = Geometry("resources/suzanne.obj")
 
         #self.cube = Cube(
         #    position=[0, 0, -2],  # Positive z value behind camera, negative in front of camera
@@ -171,6 +171,7 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         #glDrawArrays(GL_TRIANGLES, 0, self.cube.vertexCount)
+
         for cube in self.scene.cubes:
             print(cube)
             if (rotate >= 0 & rotate <=2):
