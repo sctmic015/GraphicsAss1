@@ -29,7 +29,7 @@ class Triangle:
                                   0.5, -0.5, 0.0], dtype=np.float32)
 
         self.vertexCount = 3
-        self.vbo = glGenBuffers(1)     # Vertex buffer object. One buffer for us. 
+        self.vbo = glGenBuffers(1)     # Vertex buffer object. One buffer for us.
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo) # Bind buffer so we know which one we are talking about
         glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW) # Shift buffer off to graphics card. # Static draw means set data once and use many times. Static draw for reading and writing multiple times. Both good though
 
@@ -82,6 +82,7 @@ class OpenGLWindow:
         self.clock = pg.time.Clock()
         self.scene = Scene()
 
+
     def loadShaderProgram(self, vertex, fragment):
         # Opening vertex shader file in read. with as localises lifespan of resource so file closed after indented block
         with open(vertex, 'r') as f:
@@ -97,7 +98,7 @@ class OpenGLWindow:
         return shader
 
     # Initialise
-    def initGL(self, screen_width=1080, screen_height=720, addSwitch=False):
+    def initGL(self, screen_width=960, screen_height=540, addSwitch=False, objectname="cube"):
         # Initialise Scene. Has to be here in order for us to reset the scene
         self.scene = Scene()
         pg.init()
@@ -135,7 +136,8 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         # Load obj file
-        self.cube_load = Geometry("resources/suzanne.obj")
+        name = "resources/" + objectname + ".obj"
+        self.cube_load = Geometry(name)
 
         # Used to add an extra object and reset scene
         if (addSwitch == True):
