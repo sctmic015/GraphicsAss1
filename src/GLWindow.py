@@ -29,7 +29,7 @@ class Triangle:
                                   0.5, -0.5, 0.0], dtype=np.float32)
 
         self.vertexCount = 3
-        self.vbo = glGenBuffers(1)     # Vertex buffer object. One buffer for us. 
+        self.vbo = glGenBuffers(1)     # Vertex buffer object. One buffer for us.
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo) # Bind buffer so we know which one we are talking about
         glBufferData(GL_ARRAY_BUFFER, self.vertices.nbytes, self.vertices, GL_STATIC_DRAW) # Shift buffer off to graphics card. # Static draw means set data once and use many times. Static draw for reading and writing multiple times. Both good though
 
@@ -70,7 +70,7 @@ class Scene:
     # Add secondary object adjacent to initial object
     def addCube(self):
         newCube = Cube(
-                position=[-1.5, 0, -10],
+                position=[-3, 0, -10],
                 eulers=[0, 0, 0]
             )
         self.cubes.append(newCube)
@@ -81,6 +81,7 @@ class OpenGLWindow:
         self.triangle = None
         self.clock = pg.time.Clock()
         self.scene = Scene()
+
 
     def loadShaderProgram(self, vertex, fragment):
         # Opening vertex shader file in read. with as localises lifespan of resource so file closed after indented block
@@ -97,7 +98,7 @@ class OpenGLWindow:
         return shader
 
     # Initialise
-    def initGL(self, screen_width=1080, screen_height=720, addSwitch=False):
+    def initGL(self, screen_width=960, screen_height=540, addSwitch=False, objectname="cube"):
         # Initialise Scene. Has to be here in order for us to reset the scene
         self.scene = Scene()
         pg.init()
@@ -135,7 +136,8 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         # Load obj file
-        self.cube_load = Geometry("resources/suzanne.obj")
+        name = "resources/" + objectname + ".obj"
+        self.cube_load = Geometry(name)
 
         # Used to add an extra object and reset scene
         if (addSwitch == True):
@@ -185,9 +187,15 @@ class OpenGLWindow:
                         eulers=np.radians(cube.eulers), dtype=np.float32
                     )
                 )
+                # Used to scale objects
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
+                )
             # When count is 1 (ie > 0) we are rotating the peripheral object around center object
             elif count > 0:
                 # translate
+
                 model_transform = pyrr.matrix44.multiply(
                     m1=model_transform,
                     m2=pyrr.matrix44.create_from_translation(np.array([3, 0, 0]), dtype=np.float32)
@@ -205,23 +213,19 @@ class OpenGLWindow:
                     )
                 )
 
+                # Used to scale objects
+                model_transform = pyrr.matrix44.multiply(
+                    m1=model_transform,
+                    m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
+                )
+
                 model_transform = pyrr.matrix44.multiply(
                     m1=model_transform,
                     m2=pyrr.matrix44.create_from_translation(np.array([3, 0, 0]), dtype=np.float32)
-                )
+                    )
 
-            # Send to position
-            model_transform = pyrr.matrix44.multiply(
-                m1=model_transform,
-                m2=pyrr.matrix44.create_from_translation(
-                    vec=np.array(cube.position), dtype=np.float32
-                )
-            )
-            # Used to scale both objects
-            model_transform = pyrr.matrix44.multiply(
-                m1=model_transform,
-                m2=pyrr.matrix44.create_from_scale(np.array([scale, scale, scale]), dtype=np.float32)
-            )
+
+
             # Used to translate both objects
             model_transform = pyrr.matrix44.multiply(
                 m1=model_transform,

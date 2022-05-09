@@ -1,4 +1,8 @@
-PyOpenGL Skeleton Code
+# Author SCTMIC015
+
+Set Up information:
+
+Set up follows much of the same procedure as before. Some of which is pasted below.
 
 Setup assumes that you are using a UNIX-based OS with python3 and python3-venv installed.
 
@@ -22,5 +26,3 @@ To run the skeleton code:
 > python ./src/main.py
 ```
 
-You should see the following output (once you've implemented the Window rendering):
-![example output for PyOpenGL skeleton code](./resources/example_output.png)

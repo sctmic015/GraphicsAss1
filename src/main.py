@@ -1,11 +1,19 @@
 import pygame as pg
 from GLWindow import *
+import sys
 
 def main():
 	""" The main method where we create and setup our PyGame program """
+	if len(sys.argv[1]) > 0:
+		filename = sys.argv[1]
+		print(filename)
+	else:
+		filename = "cube"
+		print(filename)
+
 
 	window = OpenGLWindow()
-	window.initGL()
+	window.initGL(objectname = filename)
 	running = True
 
 	count = 0
@@ -64,10 +72,10 @@ def main():
 				elif event.key == pg.K_RIGHT:
 					x = x + 0.1
 				elif event.key == pg.K_a:     # Add object and reset scene
-					window.initGL(addSwitch=True)
+					window.initGL(addSwitch=True, objectname=filename)
 					rotate = -1
 				elif event.key == pg.K_r:    # Reset Scene -> Need to fix
-					window.initGL()
+					window.initGL(objectname=filename)
 					rotate = -1
 		window.render(rotate, scale, x, y, z) # Refresh screen
 	
