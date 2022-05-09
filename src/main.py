@@ -57,6 +57,9 @@ def main():
 					x = x - 0.1
 				elif event.key == pg.K_RIGHT:
 					x = x + 0.1
+				elif event.key == pg.K_a:
+					window.initGL(addSwitch=True)
+					rotate = -1
 		window.render(rotate, scale, x, y, z) # Refresh screen
 	
 	window.cleanup()

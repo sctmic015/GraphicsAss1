@@ -63,12 +63,13 @@ class Scene:
                 position=[0, 0, -10],
                 eulers=[0, 0, 0]
             ),
-            Cube(
+        ]
+    def addCube(self):
+        newCube = Cube(
                 position=[-1.5, 0, -10],
                 eulers=[0, 0, 0]
             )
-        ]
-
+        self.cubes.append(newCube)
 
 class OpenGLWindow:
 
@@ -92,7 +93,7 @@ class OpenGLWindow:
 
         return shader
 
-    def initGL(self, screen_width=1080, screen_height=720):
+    def initGL(self, screen_width=1080, screen_height=720, addSwitch=False):
         # Initialise
         pg.init()
 
@@ -139,7 +140,9 @@ class OpenGLWindow:
         #    position=[0, 0, -2],  # Positive z value behind camera, negative in front of camera
         #    eulers=[0, 0, 0]
         #)
-
+        if (addSwitch == True):
+            self.scene = Scene()
+            self.scene.addCube()
         ## Perspective Projection matrix - Gives us our view
         projection_transform = pyrr.matrix44.create_perspective_projection(
             fovy=45, aspect=640 / 480,    # fovy - field of view angle in the y think like half a view angle; aspect -> aspect ratio
