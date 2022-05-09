@@ -120,6 +120,7 @@ class OpenGLWindow:
         glClearColor(0, 0, 0, 1)
 
 
+
         # Note that this path is relative to your working directory when running the program
         # You will need change the filepath if you are running the script from inside ./src/
         # Call function and call resulting shader

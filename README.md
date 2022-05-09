@@ -1,38 +1,54 @@
 # Author: SCTMIC015
 
-##Set Up information:
+## Set Up information:
 
-Set up follows much of the same procedure as before. Some of which is pasted below.
+I could not run the program (even when the initial skeleton was given to us)
+within a virtual environment on linux. I assume it has something to do with my 
+linux distribution. However, The program ran perfectly  on a linux system provided the packages within the 
+"requirements.txt" file were installed outside of a virtual environment. However, the program worked fine within a virtual
+environment in windows. 
 
-Setup assumes that you are using a UNIX-based OS with python3 and python3-venv installed.
+Setup within a virtual environment on windows is as follows.
+Assuming that python3 and python3-venv installed.
 
-To build the virtual environment and install necessary packages:
+All instructions are exectuted from within the SCTMIC015Ass1 directory:
+
+1) To build the virtual environment and install necessary packages using a python script:
 
 ```
-> make
+> python3 MakeWindows.py
 ```
 
-Note: You can also put any packages you want to use in the requirements.txt file.
 
-To activate the virtual environment:
+
+2) To activate the virtual environment:
 
 ```
-> source ./venv/bin/activate
+> ./venv/Scripts/activate
+
+
 ```
 
-To run the skeleton code:
+3) To run the skeleton code:
 
 - To load the default object (ie "cube.obj")
 ```
-> python ./src/main.py
+> python3 ./src/main.py
 ```
 
 - To select an object to load at startup 
 
 ```
-> python ./src/main.py "objectname"
+> python3 ./src/main.py "objectname"
 ```
 For Example to load suzanne as an object we would type python ./src/main.py "suzanne.obj"
+
+**Note**: Step 3 should work on both a windows and linux distribution outside of a virtual environment 
+provided the correct packages are installed.
+
+**Note 2**: You can try use the setup desribed in the initial ReadMe provided. If you can get it 
+working for the base skeleton provided it should work for mine as well. 
+
 
 ## Key Presses
  
