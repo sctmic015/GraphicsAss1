@@ -24,7 +24,7 @@ All instructions are exectuted from within the SCTMIC015Ass1 directory:
 2) To activate the virtual environment:
 
 ```
-> ./venv/Scripts/activate
+> \venv\Scripts\activate
 
 
 ```
@@ -33,7 +33,7 @@ All instructions are exectuted from within the SCTMIC015Ass1 directory:
 
 - To load the default object (ie "cube.obj")
 ```
-> python3 ./src/main.py
+> python3 .\src\main.py
 ```
 
 - To select an object to load at startup 
