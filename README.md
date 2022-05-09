@@ -24,7 +24,7 @@ All instructions are exectuted from within the SCTMIC015Ass1 directory:
 2) To activate the virtual environment:
 
 ```
-> \venv\Scripts\activate
+> venv\Scripts\activate
 
 
 ```
