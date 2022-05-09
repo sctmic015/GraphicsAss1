@@ -4,13 +4,13 @@ import sys
 
 def main():
 	""" The main method where we create and setup our PyGame program """
-	if len(sys.argv[1]) > 0:
-		filename = sys.argv[1]
+	try:
+		if len(sys.argv[1]) > 0:
+			filename = sys.argv[1]
+			print(filename)
+	except:
+		filename = "cube.obj"
 		print(filename)
-	else:
-		filename = "cube"
-		print(filename)
-
 
 	window = OpenGLWindow()
 	window.initGL(objectname = filename)

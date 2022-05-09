@@ -98,7 +98,7 @@ class OpenGLWindow:
         return shader
 
     # Initialise
-    def initGL(self, screen_width=960, screen_height=540, addSwitch=False, objectname="cube"):
+    def initGL(self, screen_width=960, screen_height=540, addSwitch=False, objectname="cube.obj"):
         # Initialise Scene. Has to be here in order for us to reset the scene
         self.scene = Scene()
         pg.init()
