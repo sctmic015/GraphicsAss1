@@ -136,7 +136,7 @@ class OpenGLWindow:
 
         # Uncomment this for model rendering
         # Load obj file
-        name = "resources/" + objectname + ".obj"
+        name = "resources/" + objectname
         self.cube_load = Geometry(name)
 
         # Used to add an extra object and reset scene

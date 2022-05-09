@@ -51,9 +51,9 @@ def main():
 						count = count + 1
 				elif event.key == pg.K_z: # Changes Rotation to Z axis
 					rotate = 2
-				elif event.key == pg.K_x: # Changes Rotation to X axis
-					rotate = 1
 				elif event.key == pg.K_y: # Changes Rotation to Y axis
+					rotate = 1
+				elif event.key == pg.K_x: # Changes Rotation to X axis
 					rotate = 0
 				elif event.key == pg.K_s: # Stops Rotation
 					rotate = -1
